@@ -1,0 +1,25 @@
+Implementation
+
+Dataset generation:
+
+To confirm the convergence of the proposed model on a peicewise linear input a dummy dataset was generated. Initially 'n' points are generated k times iteratively within a circle of radius r and centre c (which arre diffent for each k). This gives us a set of n*k Xis. The proposed target is then generated using a linear map T which is applied on the inputs Xi. Then the inputs are randomly shuffled to ensure no inherent bias with the order of the data points. This gives us a dataset that looks like the following
+
+
+Model implementation
+
+The model is implemented using both the proposed approaches. The python package scipy.optimize (which uses LBFGS)  is used to minimize the loss function. In the case of the basic approach, the loss function takes w1, b1, w2, b2 as inputs whereas in the linear algebra approach it takes \Gamma, \alpha and \beta as the inputs which are optimized. The tree is implemented using a queue. Initially the root node is pushed into the queue. The model is trained for the node on top of the queue over the complete dataset. First an initial linear fit is proposed for the left and right children of the present node in consideration and then the weights w1,b1,w2 and b2 are updated. This alteration is performed for a set nummber of iterations. Then a hard seperation is performed on the dataset, by thresholding the values for p1 and p2 obtained for each data point. After getting such a split, if the amount of entries going to a particular side cross a certain pre-defined threshold, that side's node is pushed into the queue. This runs until the queue becomes empty.
+
+Improving performance 
+
+KMeans initialisation
+
+To get a better initialisation, such that the 2 initially proposed models for the left and right child of the present nodes are not completely random but represent a part of the dataset a Kmeans initialisation is done. Thus the dataset is split in two clusters and the linear models for the children are trained from each of these clusters. The proposed w1 and w2 are the centres of these clusters respectively and b1 and b2 are set to 0.
+
+Minibatch update
+
+Since the size of our input is the order of the number of entries for the linear algebra approach for updating the parameters w1,b1,w2 and b2 which are calculated from \Gamma, \alpha and \beta, the values for the parameters are trained over a small sample of the dataset. This then helps us create an initialisation for the next batch. Several such batches are trained and the weights are then calculated.
+
+Results
+
+R_2 score : Accuracy 0.938820701346
+R_2 score : Accuracy 0.862615315724
